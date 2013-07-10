@@ -4,3 +4,6 @@ pkg
 idea
 spec/tmp
 .DS_Store
+
+# RubyMine project files
+.idea
