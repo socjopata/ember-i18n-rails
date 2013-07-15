@@ -12,8 +12,8 @@ module Ember
     # This is required to ensure I18n is loaded.
     def assert_usable_configuration!
       @usable_configuration ||= ::Rails.version >= "3.1.1" &&
-        ::Rails.configuration.assets.initialize_on_precompile ||
-        raise("Cannot precompile ember-i18n translations unless environment is initialized. Please set config.assets.initialize_on_precompile to true.")
+          ::Rails.configuration.assets.initialize_on_precompile ||
+          raise("Cannot precompile ember-i18n translations unless environment is initialized. Please set config.assets.initialize_on_precompile to true.")
     end
 
     def has_asset_pipeline?
@@ -48,7 +48,7 @@ module Ember
           end
           puts "\nLocale: #{locale}"
           fallback_english_hash = flat_hash(translations[:en])
-          translations_hash = flat_hash(translations[locale])
+          translations_hash     = flat_hash(translations[locale])
           if locale != :en
             translations_hash.each do |key, value|
               english_fallback = fallback_english_hash[key]
@@ -108,7 +108,7 @@ module Ember
       FileUtils.mkdir_p(export_dir)
       require "open-uri"
       contents = open("https://raw.github.com/jamesarosen/ember-i18n/master/lib/i18n.js").read
-      File.open(javascript_file, "w+") {|f| f << contents}
+      File.open(javascript_file, "w+") { |f| f << contents }
     end
 
     # Convert translations to JSON string and save file.
@@ -125,20 +125,23 @@ module Ember
 
     def files
       file_names = config[:files].split(",").map(&:strip)
-      file_names.map{|file_name| Rails.root.join('config', 'locales', "#{file_name}.yml").to_s}
+      file_names.map { |file_name| Rails.root.join('config', 'locales', "#{file_name}.yml").to_s }
     end
 
     # Initialize and return translations
     def translations
       ::I18n.load_path = default_locales_path
-      ::I18n.backend.instance_eval do
-        if !!config[:files]
-          load_translations(files)
-          #TODO should I set initialized var here ?
-        else
-          init_translations unless initialized?
-        end
-        translations
+      files            = files
+      if files
+          ::I18n.backend.instance_eval do files
+            load_translations(files)
+            translations
+          end
+      else
+          ::I18n.backend.instance_eval do
+            init_translations unless initialized?
+            translations
+          end
       end
     end
 
