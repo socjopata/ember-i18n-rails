@@ -123,11 +123,21 @@ module Ember
       end
     end
 
+    def files
+      file_names = config[:files].split(",").map(&:strip)
+      file_names.map{|file_name| Rails.root.join('config', 'locales', "#{file_name}.yml").to_s}
+    end
+
     # Initialize and return translations
     def translations
       ::I18n.load_path = default_locales_path
       ::I18n.backend.instance_eval do
-        init_translations unless initialized?
+        if !!config[:files]
+          load_translations(files)
+          #TODO should I set initialized var here ?
+        else
+          init_translations unless initialized?
+        end
         translations
       end
     end
